@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 - 2026-04-08
+
+- Use HA official base image (`ghcr.io/home-assistant/{arch}-base`) instead of `node:20-alpine`
+- Remove manual bashio installation (already included in HA base image)
+- Install only `nodejs` and `npm` packages at runtime
+
 ## 0.1.1 - 2026-04-08
 
 - Remove `public/` directory copy from Dockerfile (caused build failure because the empty directory is not tracked by git)
