@@ -5,6 +5,8 @@ set -e
 HA_TOKEN=$(bashio::config 'ha_token')
 export HA_TOKEN
 export HA_BASE_URL="http://homeassistant:8123"
+export PORT=8099
+export HOSTNAME=0.0.0.0
 
 cd /app
 exec node server.js
