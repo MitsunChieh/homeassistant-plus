@@ -7,7 +7,6 @@ COPY package.json package-lock.json ./
 RUN npm ci
 COPY src/ src/
 COPY next.config.ts tsconfig.json postcss.config.mjs ./
-COPY public/ public/
 RUN npm run build
 
 FROM ${BUILD_FROM}
@@ -25,8 +24,7 @@ ENV NODE_ENV=production
 
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
 COPY run.sh /
 
-EXPOSE 3000
+EXPOSE 8099
 CMD ["/run.sh"]
