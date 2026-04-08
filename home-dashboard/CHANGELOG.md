@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3 - 2026-04-08
+
+- Fix `s6-overlay-suexec: fatal: can only run as pid 1` crash on startup
+- Run Next.js server as an s6-overlay longrun service instead of overriding CMD
+- Use bashio to read `ha_token` option (instead of jq)
+
 ## 0.1.2 - 2026-04-08
 
 - Use HA official base image (`ghcr.io/home-assistant/{arch}-base`) instead of `node:20-alpine`
