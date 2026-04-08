@@ -29,7 +29,7 @@
 - [x] 5.1 Create Dockerfile for the Next.js dashboard add-on (multi-arch aarch64/amd64)
 - [x] 5.2 Create HA add-on config files (`config.yaml`, `build.yaml`) with `HA_TOKEN` as add-on option
 - [x] 5.3 Update `ha-client.ts` to use `http://homeassistant:8123` as default `HA_BASE_URL` (internal HA network)
-- [ ] 5.4 Create add-on repository config (`repository.yaml`) for GitHub-based installation
+- [x] 5.4 Create add-on repository config (`repository.yaml`) for GitHub-based installation
 
 ## 6. Deployment
 
