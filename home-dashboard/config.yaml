@@ -1,6 +1,6 @@
 name: "Home Dashboard"
 description: "A simplified Home Assistant dashboard for non-technical users"
-version: "0.1.0"
+version: "0.1.1"
 slug: "home-dashboard"
 url: "https://github.com/MitsunChieh/homeassistant-plus"
 arch:
