@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4 - 2026-04-08
+
+- Set `init: false` in `config.yaml` so HA Supervisor doesn't wrap the container with its own init. This lets s6-overlay run as PID 1 (required by the HA base image).
+
 ## 0.1.3 - 2026-04-08
 
 - Fix `s6-overlay-suexec: fatal: can only run as pid 1` crash on startup
