@@ -33,5 +33,5 @@
 
 ## 6. Deployment
 
-- [ ] 6.1 Add `dashboard.mitsun.cc` as Additional Host in Cloudflared add-on config, pointing to the dashboard add-on port
-- [ ] 6.2 Build, install, and verify dashboard add-on loads with real HA data
+- [x] 6.1 Add `dashboard.mitsun.cc` as Additional Host in Cloudflared add-on config, pointing to the dashboard add-on port
+- [x] 6.2 Build, install, and verify dashboard add-on loads with real HA data
