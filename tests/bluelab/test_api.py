@@ -69,6 +69,7 @@ class TestEdenicApiClient:
         assert data["ec"] == 1.98
         assert data["ph"] == 6.81
         assert data["nut_temp"] == 22.89
+        assert data["_ts"] == 1766940512515
 
     @pytest.mark.asyncio
     async def test_get_device_attributes(self, mock_api):

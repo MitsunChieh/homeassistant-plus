@@ -60,14 +60,23 @@ class EdenicApiClient:
 
     @staticmethod
     def _normalize_telemetry(raw: dict[str, Any]) -> dict[str, Any]:
-        """Convert API telemetry format to flat key->float dict."""
+        """Convert API telemetry format to flat key->float dict.
+
+        Also extracts the most recent timestamp as "_ts" (ms epoch).
+        """
         result: dict[str, Any] = {}
+        latest_ts: int | None = None
         for key, entries in raw.items():
             if isinstance(entries, list) and entries:
                 try:
                     result[key] = float(entries[0]["value"])
+                    ts = entries[0].get("ts")
+                    if ts is not None and (latest_ts is None or ts > latest_ts):
+                        latest_ts = ts
                 except (ValueError, KeyError, IndexError):
                     result[key] = None
+        if latest_ts is not None:
+            result["_ts"] = latest_ts
         return result
 
     async def get_device_attributes(self, device_id: str) -> dict[str, Any]:

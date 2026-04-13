@@ -89,3 +89,21 @@ class TestSensorDescriptions:
         assert info["model"] == "IntelliDose"
         assert info["name"] == "IDose1"
         assert ("bluelab", "dev-1") in info["identifiers"]
+
+
+class TestTelemetryTimestamp:
+    """Test telemetry timestamp exposed as entity attribute."""
+
+    def test_last_reading_from_timestamp(self):
+        """Telemetry sensor exposes last_reading as ISO 8601 UTC."""
+        from custom_components.bluelab.sensor import format_telemetry_timestamp
+
+        # 2025-12-28T16:48:32.515000+00:00
+        result = format_telemetry_timestamp(1766940512515)
+        assert result == "2025-12-28T16:48:32+00:00"
+
+    def test_no_timestamp_returns_none(self):
+        """No timestamp yields None."""
+        from custom_components.bluelab.sensor import format_telemetry_timestamp
+
+        assert format_telemetry_timestamp(None) is None

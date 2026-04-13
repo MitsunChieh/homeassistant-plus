@@ -1,6 +1,7 @@
 """Sensor platform for Bluelab IntelliDose integration."""
 
 import logging
+from datetime import datetime, timezone
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -63,6 +64,14 @@ ATTRIBUTE_SENSOR_TYPES = [
 def make_unique_id(device_id: str, sensor_key: str) -> str:
     """Generate unique_id from device ID and sensor key."""
     return f"{DOMAIN}_{device_id}_{sensor_key}"
+
+
+def format_telemetry_timestamp(ts_ms: int | None) -> str | None:
+    """Convert ms epoch to ISO 8601 UTC string, or None if not available."""
+    if ts_ms is None:
+        return None
+    dt = datetime.fromtimestamp(ts_ms / 1000, tz=timezone.utc)
+    return dt.isoformat(timespec="seconds")
 
 
 def make_device_info(device_id: str, device_name: str) -> dict[str, Any]:
@@ -144,6 +153,19 @@ class BluelabTelemetrySensor(CoordinatorEntity, SensorEntity):
         if device_data is None:
             return None
         return device_data.get(self._sensor_key)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        """Return extra state attributes including last_reading timestamp."""
+        if self.coordinator.data is None:
+            return None
+        device_data = self.coordinator.data.get(self._device_id)
+        if device_data is None:
+            return None
+        ts = format_telemetry_timestamp(device_data.get("_ts"))
+        if ts is None:
+            return None
+        return {"last_reading": ts}
 
     @property
     def available(self) -> bool:
