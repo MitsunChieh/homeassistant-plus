@@ -11,11 +11,11 @@
 
 ## 3. API Client and Coordinators
 
-- [ ] 3.1 Write failing tests for telemetry polling with rate limit compliance — test single device fetch, multiple device fetch with spacing, and API rate limit error handling
-- [ ] 3.2 Implement Edenic API client in `api.py` — use aiohttp for API calls instead of requests; methods for device list, telemetry, and device attributes; handle auth header and HTTP errors
-- [ ] 3.3 Implement telemetry `DataUpdateCoordinator` in `coordinator.py` — poll telemetry every 70 seconds with coordinator pattern, space multiple device requests 5 seconds apart
-- [ ] 3.4 Implement attribute `DataUpdateCoordinator` in `coordinator.py` — fetch device attributes at 70-second interval offset from telemetry, for target setpoint entities from device attributes
-- [ ] 3.5 Run tests to verify API client and coordinator tests pass
+- [x] 3.1 Write failing tests for telemetry polling with rate limit compliance — test single device fetch, multiple device fetch with spacing, and API rate limit error handling
+- [x] 3.2 Implement Edenic API client in `api.py` — use aiohttp for API calls instead of requests; methods for device list, telemetry, and device attributes; handle auth header and HTTP errors
+- [x] 3.3 Implement telemetry `DataUpdateCoordinator` in `coordinator.py` — poll telemetry every 70 seconds with coordinator pattern, space multiple device requests 5 seconds apart
+- [x] 3.4 Implement attribute `DataUpdateCoordinator` in `coordinator.py` — fetch device attributes at 70-second interval offset from telemetry, for target setpoint entities from device attributes
+- [x] 3.5 Run tests to verify API client and coordinator tests pass
 
 ## 4. Sensor Entities
 
