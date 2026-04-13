@@ -5,6 +5,7 @@ from typing import Any
 
 import aiohttp
 import voluptuous as vol
+from urllib.parse import quote
 
 from homeassistant.config_entries import ConfigFlow
 from homeassistant.data_entry_flow import FlowResult
@@ -42,7 +43,7 @@ async def validate_credentials(
     Returns the device list on success.
     Raises InvalidAuth for 401, InvalidOrganization for 404.
     """
-    url = f"{DEVICE_LIST_URL}{organization_id}"
+    url = f"{DEVICE_LIST_URL}{quote(organization_id, safe='')}"
     headers = {"Authorization": api_token}
 
     async with aiohttp.ClientSession() as session:

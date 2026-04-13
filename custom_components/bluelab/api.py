@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+from urllib.parse import quote
 from typing import Any
 
 import aiohttp
@@ -31,23 +32,37 @@ class ApiError(Exception):
 class EdenicApiClient:
     """Client for the Edenic Cloud API."""
 
-    def __init__(self, api_token: str) -> None:
+    def __init__(self, api_token: str, session: aiohttp.ClientSession | None = None) -> None:
         self._headers = {"Authorization": api_token}
+        self._session = session
+        self._owns_session = session is None
+
+    async def _get_session(self) -> aiohttp.ClientSession:
+        """Return the shared session, creating one if needed."""
+        if self._session is None or self._session.closed:
+            self._session = aiohttp.ClientSession()
+            self._owns_session = True
+        return self._session
+
+    async def close(self) -> None:
+        """Close the session if we own it."""
+        if self._owns_session and self._session and not self._session.closed:
+            await self._session.close()
 
     async def _request(self, url: str) -> Any:
         """Make an authenticated GET request."""
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=self._headers) as response:
-                if response.status == 401:
-                    raise AuthError
-                if response.status == 429:
-                    raise RateLimitError
-                response.raise_for_status()
-                return await response.json()
+        session = await self._get_session()
+        async with session.get(url, headers=self._headers) as response:
+            if response.status == 401:
+                raise AuthError
+            if response.status == 429:
+                raise RateLimitError
+            response.raise_for_status()
+            return await response.json()
 
     async def get_devices(self, organization_id: str) -> list[dict[str, Any]]:
         """Fetch device list for an organization."""
-        return await self._request(f"{DEVICE_LIST_URL}{organization_id}")
+        return await self._request(f"{DEVICE_LIST_URL}{quote(organization_id, safe='')}")
 
     async def get_telemetry(self, device_id: str) -> dict[str, Any]:
         """Fetch latest telemetry for a single device.
@@ -55,7 +70,7 @@ class EdenicApiClient:
         Raw API format: {"ph": [{"ts": ..., "value": "6.81"}], ...}
         Returns normalized: {"ph": 6.81, "ec": 1.98, "nut_temp": 22.89}
         """
-        raw = await self._request(f"{TELEMETRY_URL}{device_id}")
+        raw = await self._request(f"{TELEMETRY_URL}{quote(device_id, safe='')}")
         return self._normalize_telemetry(raw)
 
     @staticmethod
@@ -85,7 +100,7 @@ class EdenicApiClient:
         Raw API format: [{"key": "setting.ec_set_point", "value": {"value": 2.2, ...}}, ...]
         Returns normalized: {"setting.ec_set_point": 2.2, "setting.ph_set_point": 5.4}
         """
-        raw = await self._request(f"{DEVICE_ATTRIBUTE_URL}{device_id}")
+        raw = await self._request(f"{DEVICE_ATTRIBUTE_URL}{quote(device_id, safe='')}")
         return self._normalize_attributes(raw)
 
     @staticmethod

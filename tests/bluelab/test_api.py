@@ -36,35 +36,37 @@ def mock_api():
         yield m
 
 
+@pytest.fixture
+async def client():
+    from custom_components.bluelab.api import EdenicApiClient
+    c = EdenicApiClient(MOCK_API_TOKEN)
+    yield c
+    await c.close()
+
+
 class TestEdenicApiClient:
     """Test the Edenic API client."""
 
     @pytest.mark.asyncio
-    async def test_get_devices(self, mock_api):
+    async def test_get_devices(self, mock_api, client):
         """Fetch device list from Edenic API."""
-        from custom_components.bluelab.api import EdenicApiClient
-
         mock_api.get(
             f"{DEVICE_LIST_URL}{MOCK_ORG_ID}",
             payload=MOCK_DEVICES,
         )
 
-        client = EdenicApiClient(MOCK_API_TOKEN)
         devices = await client.get_devices(MOCK_ORG_ID)
         assert len(devices) == 3
         assert devices[0]["id"] == "dev-1"
 
     @pytest.mark.asyncio
-    async def test_get_telemetry(self, mock_api):
+    async def test_get_telemetry(self, mock_api, client):
         """Fetch telemetry for a single device."""
-        from custom_components.bluelab.api import EdenicApiClient
-
         mock_api.get(
             f"{TELEMETRY_URL}dev-1",
             payload=MOCK_TELEMETRY_RAW,
         )
 
-        client = EdenicApiClient(MOCK_API_TOKEN)
         data = await client.get_telemetry("dev-1")
         assert data["ec"] == 1.98
         assert data["ph"] == 6.81
@@ -72,32 +74,25 @@ class TestEdenicApiClient:
         assert data["_ts"] == 1766940512515
 
     @pytest.mark.asyncio
-    async def test_get_device_attributes(self, mock_api):
+    async def test_get_device_attributes(self, mock_api, client):
         """Fetch device attributes (target setpoints)."""
-        from custom_components.bluelab.api import EdenicApiClient
-
         mock_api.get(
             f"{DEVICE_ATTRIBUTE_URL}dev-1",
             payload=MOCK_ATTRIBUTES_RAW,
         )
 
-        client = EdenicApiClient(MOCK_API_TOKEN)
         data = await client.get_device_attributes("dev-1")
         assert data["setting.ec_set_point"] == 2.2
         assert data["setting.ph_set_point"] == 5.4
 
     @pytest.mark.asyncio
-    async def test_get_telemetry_multiple_devices_with_spacing(self, mock_api):
+    async def test_get_telemetry_multiple_devices_with_spacing(self, mock_api, client):
         """Fetch telemetry for multiple devices respects inter-device delay."""
-        from custom_components.bluelab.api import EdenicApiClient
-
         for dev in MOCK_DEVICES:
             mock_api.get(
                 f"{TELEMETRY_URL}{dev['id']}",
                 payload=MOCK_TELEMETRY_RAW,
             )
-
-        client = EdenicApiClient(MOCK_API_TOKEN)
 
         start = asyncio.get_event_loop().time()
         results = await client.get_telemetry_all_devices(
@@ -110,29 +105,27 @@ class TestEdenicApiClient:
         assert elapsed >= 0.2
 
     @pytest.mark.asyncio
-    async def test_rate_limit_error_raises(self, mock_api):
+    async def test_rate_limit_error_raises(self, mock_api, client):
         """HTTP 429 raises RateLimitError."""
-        from custom_components.bluelab.api import EdenicApiClient, RateLimitError
+        from custom_components.bluelab.api import RateLimitError
 
         mock_api.get(
             f"{TELEMETRY_URL}dev-1",
             status=429,
         )
 
-        client = EdenicApiClient(MOCK_API_TOKEN)
         with pytest.raises(RateLimitError):
             await client.get_telemetry("dev-1")
 
     @pytest.mark.asyncio
-    async def test_auth_error_raises(self, mock_api):
+    async def test_auth_error_raises(self, mock_api, client):
         """HTTP 401 raises AuthError."""
-        from custom_components.bluelab.api import EdenicApiClient, AuthError
+        from custom_components.bluelab.api import AuthError
 
         mock_api.get(
             f"{TELEMETRY_URL}dev-1",
             status=401,
         )
 
-        client = EdenicApiClient(MOCK_API_TOKEN)
         with pytest.raises(AuthError):
             await client.get_telemetry("dev-1")
