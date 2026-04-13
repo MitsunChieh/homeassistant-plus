@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Edenic Cloud",
+        "description": "Enter your Edenic API token and organization ID.",
+        "data": {
+          "api_token": "API Token",
+          "organization_id": "Organization ID"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid API token. Please check your credentials.",
+      "invalid_organization": "Organization not found. Please check your organization ID.",
+      "cannot_connect": "Unable to connect to the Edenic API. Please try again later."
+    },
+    "abort": {
+      "already_configured": "This organization is already configured."
+    }
+  }
+}

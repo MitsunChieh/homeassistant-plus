@@ -1,13 +1,13 @@
 ## 1. Integration Scaffold
 
-- [ ] 1.1 Create `custom_components/bluelab/` with `manifest.json` (domain: bluelab, dependencies: [], requirements: []), `const.py` (API URLs, polling intervals, domain constant), and `__init__.py` stub — build new integration rather than fork maziggy/homeassistant-bluelab
-- [ ] 1.2 Write failing tests for config flow with API token and organization ID — test valid credentials, invalid API token, and invalid organization ID scenarios
+- [x] 1.1 Create `custom_components/bluelab/` with `manifest.json` (domain: bluelab, dependencies: [], requirements: []), `const.py` (API URLs, polling intervals, domain constant), and `__init__.py` stub — build new integration rather than fork maziggy/homeassistant-bluelab
+- [x] 1.2 Write failing tests for config flow with API token and organization ID — test valid credentials, invalid API token, and invalid organization ID scenarios
 
 ## 2. Config Flow
 
-- [ ] 2.1 Implement config flow with API token and organization ID in `config_flow.py` — validate credentials by calling `GET /api/v1/device/{org_id}`, reject invalid credentials with descriptive error messages
-- [ ] 2.2 Create `strings.json` and `translations/en.json` with config flow UI strings (step titles, field labels, error messages)
-- [ ] 2.3 Run tests to verify config flow tests pass
+- [x] 2.1 Implement config flow with API token and organization ID in `config_flow.py` — validate credentials by calling `GET /api/v1/device/{org_id}`, reject invalid credentials with descriptive error messages
+- [x] 2.2 Create `strings.json` and `translations/en.json` with config flow UI strings (step titles, field labels, error messages)
+- [x] 2.3 Run tests to verify config flow tests pass
 
 ## 3. API Client and Coordinators
 

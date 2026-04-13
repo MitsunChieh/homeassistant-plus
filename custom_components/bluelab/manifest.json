@@ -1,0 +1,11 @@
+{
+  "domain": "bluelab",
+  "name": "Bluelab IntelliDose",
+  "codeowners": ["@MitsunChieh"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/MitsunChieh/homeassistant-plus",
+  "iot_class": "cloud_polling",
+  "requirements": [],
+  "version": "0.1.0"
+}
