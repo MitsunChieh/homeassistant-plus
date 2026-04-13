@@ -19,8 +19,8 @@
 
 ## 4. Sensor Entities
 
-- [ ] 4.1 Write failing tests for sensor entity creation per IntelliDose unit — test 3 devices × 3 sensors, telemetry state updates, device offline handling, and target setpoint entities
-- [ ] 4.2 Implement `sensor.py` — create EC, pH, temperature entities per device with proper unit_of_measurement and state_class; create EC target and pH target entities from device attributes; handle unavailable state
-- [ ] 4.3 Implement device registry organization — register each IntelliDose with manufacturer "Bluelab", model "IntelliDose", and Edenic device name
-- [ ] 4.4 Wire up coordinators in `__init__.py` `async_setup_entry` — create coordinators, trigger initial fetch, forward to sensor platform
-- [ ] 4.5 Run full test suite to verify all tests pass
+- [x] 4.1 Write failing tests for sensor entity creation per IntelliDose unit — test 3 devices × 3 sensors, telemetry state updates, device offline handling, and target setpoint entities
+- [x] 4.2 Implement `sensor.py` — create EC, pH, temperature entities per device with proper unit_of_measurement and state_class; create EC target and pH target entities from device attributes; handle unavailable state
+- [x] 4.3 Implement device registry organization — register each IntelliDose with manufacturer "Bluelab", model "IntelliDose", and Edenic device name
+- [x] 4.4 Wire up coordinators in `__init__.py` `async_setup_entry` — create coordinators, trigger initial fetch, forward to sensor platform
+- [x] 4.5 Run full test suite to verify all tests pass
