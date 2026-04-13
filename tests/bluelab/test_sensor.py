@@ -69,7 +69,7 @@ class TestSensorDescriptions:
         """Temperature sensor has device_class temperature."""
         from custom_components.bluelab.sensor import TELEMETRY_SENSOR_TYPES
 
-        temp = next(s for s in TELEMETRY_SENSOR_TYPES if s["key"] == "temperature")
+        temp = next(s for s in TELEMETRY_SENSOR_TYPES if s["key"] == "nut_temp")
         assert temp.get("device_class") == "temperature"
         assert temp["unit"] == "°C"
 

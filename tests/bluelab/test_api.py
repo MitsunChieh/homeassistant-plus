@@ -18,15 +18,16 @@ MOCK_DEVICES = [
     {"id": "dev-2", "name": "IDose2", "type": "intellidose"},
     {"id": "dev-3", "name": "IDose3", "type": "intellidose"},
 ]
-MOCK_TELEMETRY = {
-    "ec": 1.2,
-    "ph": 7.0,
-    "temperature": 21.0,
+MOCK_TELEMETRY_RAW = {
+    "ec": [{"ts": 1766940512515, "value": "1.98"}],
+    "ph": [{"ts": 1766940512515, "value": "6.81"}],
+    "nut_temp": [{"ts": 1766940512515, "value": "22.89"}],
 }
-MOCK_ATTRIBUTES = {
-    "ec_target": 2.2,
-    "ph_target": 5.4,
-}
+MOCK_ATTRIBUTES_RAW = [
+    {"lastUpdateTs": 1766940512515, "key": "setting.ec_set_point", "value": {"value": 2.2, "status": "SUCCESS"}},
+    {"lastUpdateTs": 1766940512515, "key": "setting.ph_set_point", "value": {"value": 5.4, "status": "SUCCESS"}},
+    {"lastUpdateTs": 1766940512515, "key": "some_other_attr", "value": "plain_string"},
+]
 
 
 @pytest.fixture
@@ -60,14 +61,14 @@ class TestEdenicApiClient:
 
         mock_api.get(
             f"{TELEMETRY_URL}dev-1",
-            payload=MOCK_TELEMETRY,
+            payload=MOCK_TELEMETRY_RAW,
         )
 
         client = EdenicApiClient(MOCK_API_TOKEN)
         data = await client.get_telemetry("dev-1")
-        assert data["ec"] == 1.2
-        assert data["ph"] == 7.0
-        assert data["temperature"] == 21.0
+        assert data["ec"] == 1.98
+        assert data["ph"] == 6.81
+        assert data["nut_temp"] == 22.89
 
     @pytest.mark.asyncio
     async def test_get_device_attributes(self, mock_api):
@@ -76,13 +77,13 @@ class TestEdenicApiClient:
 
         mock_api.get(
             f"{DEVICE_ATTRIBUTE_URL}dev-1",
-            payload=MOCK_ATTRIBUTES,
+            payload=MOCK_ATTRIBUTES_RAW,
         )
 
         client = EdenicApiClient(MOCK_API_TOKEN)
         data = await client.get_device_attributes("dev-1")
-        assert data["ec_target"] == 2.2
-        assert data["ph_target"] == 5.4
+        assert data["setting.ec_set_point"] == 2.2
+        assert data["setting.ph_set_point"] == 5.4
 
     @pytest.mark.asyncio
     async def test_get_telemetry_multiple_devices_with_spacing(self, mock_api):
@@ -92,7 +93,7 @@ class TestEdenicApiClient:
         for dev in MOCK_DEVICES:
             mock_api.get(
                 f"{TELEMETRY_URL}{dev['id']}",
-                payload=MOCK_TELEMETRY,
+                payload=MOCK_TELEMETRY_RAW,
             )
 
         client = EdenicApiClient(MOCK_API_TOKEN)

@@ -34,7 +34,7 @@ TELEMETRY_SENSOR_TYPES = [
         "state_class": SensorStateClass.MEASUREMENT,
     },
     {
-        "key": "temperature",
+        "key": "nut_temp",
         "name": "Temperature",
         "unit": "°C",
         "device_class": SensorDeviceClass.TEMPERATURE,
@@ -44,14 +44,14 @@ TELEMETRY_SENSOR_TYPES = [
 
 ATTRIBUTE_SENSOR_TYPES = [
     {
-        "key": "ec_target",
+        "key": "setting.ec_set_point",
         "name": "EC Target",
         "unit": "mS/cm",
         "device_class": None,
         "state_class": None,
     },
     {
-        "key": "ph_target",
+        "key": "setting.ph_set_point",
         "name": "pH Target",
         "unit": "pH",
         "device_class": None,

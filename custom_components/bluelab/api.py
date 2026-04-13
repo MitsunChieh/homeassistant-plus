@@ -50,12 +50,47 @@ class EdenicApiClient:
         return await self._request(f"{DEVICE_LIST_URL}{organization_id}")
 
     async def get_telemetry(self, device_id: str) -> dict[str, Any]:
-        """Fetch latest telemetry for a single device."""
-        return await self._request(f"{TELEMETRY_URL}{device_id}")
+        """Fetch latest telemetry for a single device.
+
+        Raw API format: {"ph": [{"ts": ..., "value": "6.81"}], ...}
+        Returns normalized: {"ph": 6.81, "ec": 1.98, "nut_temp": 22.89}
+        """
+        raw = await self._request(f"{TELEMETRY_URL}{device_id}")
+        return self._normalize_telemetry(raw)
+
+    @staticmethod
+    def _normalize_telemetry(raw: dict[str, Any]) -> dict[str, Any]:
+        """Convert API telemetry format to flat key->float dict."""
+        result: dict[str, Any] = {}
+        for key, entries in raw.items():
+            if isinstance(entries, list) and entries:
+                try:
+                    result[key] = float(entries[0]["value"])
+                except (ValueError, KeyError, IndexError):
+                    result[key] = None
+        return result
 
     async def get_device_attributes(self, device_id: str) -> dict[str, Any]:
-        """Fetch device attributes (target setpoints)."""
-        return await self._request(f"{DEVICE_ATTRIBUTE_URL}{device_id}")
+        """Fetch device attributes (target setpoints).
+
+        Raw API format: [{"key": "setting.ec_set_point", "value": {"value": 2.2, ...}}, ...]
+        Returns normalized: {"setting.ec_set_point": 2.2, "setting.ph_set_point": 5.4}
+        """
+        raw = await self._request(f"{DEVICE_ATTRIBUTE_URL}{device_id}")
+        return self._normalize_attributes(raw)
+
+    @staticmethod
+    def _normalize_attributes(raw: list[dict[str, Any]]) -> dict[str, Any]:
+        """Convert API attribute list to flat key->value dict."""
+        result: dict[str, Any] = {}
+        for item in raw:
+            key = item.get("key", "")
+            value = item.get("value")
+            if isinstance(value, dict) and "value" in value:
+                result[key] = value["value"]
+            elif value is not None:
+                result[key] = value
+        return result
 
     async def get_telemetry_all_devices(
         self,
