@@ -16,6 +16,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 from .coordinator import BluelabAttributeCoordinator, BluelabTelemetryCoordinator
+from .helpers import get_device_display_name
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -99,7 +100,7 @@ async def async_setup_entry(
 
     for device in devices:
         device_id = device["id"]
-        device_name = device.get("name", device_id)
+        device_name = get_device_display_name(device)
 
         for sensor_type in TELEMETRY_SENSOR_TYPES:
             entities.append(

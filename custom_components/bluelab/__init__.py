@@ -6,9 +6,9 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from .api import EdenicApiClient
-from .config_flow import validate_credentials
 from .const import CONF_API_TOKEN, CONF_ORGANIZATION_ID, DOMAIN
 from .coordinator import BluelabAttributeCoordinator, BluelabTelemetryCoordinator
+from .helpers import filter_non_gateway_devices
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -23,7 +23,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     organization_id = entry.data[CONF_ORGANIZATION_ID]
 
     client = EdenicApiClient(api_token)
-    devices = await client.get_devices(organization_id)
+    all_devices = await client.get_devices(organization_id)
+    devices = filter_non_gateway_devices(all_devices)
     device_ids = [d["id"] for d in devices]
 
     telemetry_coordinator = BluelabTelemetryCoordinator(hass, client, device_ids)
