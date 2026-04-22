@@ -80,15 +80,25 @@ class TestSensorDescriptions:
         uid = make_unique_id("dev-1", "ec")
         assert uid == f"{DOMAIN}_dev-1_ec"
 
-    def test_device_info(self):
-        """Device info has manufacturer Bluelab and model IntelliDose."""
+    def test_device_info_intellidose(self):
+        """IntelliDose device info has model IntelliDose."""
         from custom_components.bluelab.sensor import make_device_info
 
-        info = make_device_info("dev-1", "IDose1")
+        info = make_device_info("dev-1", "IDose A", model="IntelliDose")
         assert info["manufacturer"] == "Bluelab"
         assert info["model"] == "IntelliDose"
-        assert info["name"] == "IDose1"
+        assert info["name"] == "IDose A"
         assert ("bluelab", "dev-1") in info["identifiers"]
+
+    def test_device_info_gateway(self):
+        """Gateway device info has model IntelliLink."""
+        from custom_components.bluelab.sensor import make_device_info
+
+        info = make_device_info("gw-1", "Bluelab-AABE", model="IntelliLink")
+        assert info["manufacturer"] == "Bluelab"
+        assert info["model"] == "IntelliLink"
+        assert info["name"] == "Bluelab-AABE"
+        assert ("bluelab", "gw-1") in info["identifiers"]
 
 
 class TestTelemetryTimestamp:

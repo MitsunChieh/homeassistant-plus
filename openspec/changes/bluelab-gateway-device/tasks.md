@@ -7,9 +7,9 @@
 
 ## 2. Gateway Device Registration
 
-- [ ] 2.1 Write failing test for device registry organization — verify each gateway registered with model "IntelliLink" and name from `additionalInfo.deviceIdentifier`; verify IntelliDose still uses label and model "IntelliDose"
-- [ ] 2.2 Update `sensor.py` `make_device_info` to accept model parameter; create gateway devices with model "IntelliLink"
-- [ ] 2.3 Run tests to verify pass
+- [x] 2.1 Write failing test for device registry organization — verify each gateway registered with model "IntelliLink" and name from `additionalInfo.deviceIdentifier`; verify IntelliDose still uses label and model "IntelliDose"
+- [x] 2.2 Update `sensor.py` `make_device_info` to accept model parameter; create gateway devices with model "IntelliLink"
+- [x] 2.3 Run tests to verify pass
 
 ## 3. Gateway Diagnostic Entities
 

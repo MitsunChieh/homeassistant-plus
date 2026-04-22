@@ -75,13 +75,13 @@ def format_telemetry_timestamp(ts_ms: int | None) -> str | None:
     return dt.isoformat(timespec="seconds")
 
 
-def make_device_info(device_id: str, device_name: str) -> dict[str, Any]:
-    """Generate HA device info dict for an IntelliDose device."""
+def make_device_info(device_id: str, device_name: str, model: str = "IntelliDose") -> dict[str, Any]:
+    """Generate HA device info dict for a Bluelab device."""
     return {
         "identifiers": {(DOMAIN, device_id)},
         "name": device_name,
         "manufacturer": "Bluelab",
-        "model": "IntelliDose",
+        "model": model,
     }
 
 
