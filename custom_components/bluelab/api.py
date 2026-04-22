@@ -75,8 +75,9 @@ class EdenicApiClient:
 
     @staticmethod
     def _normalize_telemetry(raw: dict[str, Any]) -> dict[str, Any]:
-        """Convert API telemetry format to flat key->float dict.
+        """Convert API telemetry format to flat dict.
 
+        Numeric strings are converted to float; non-numeric strings are kept as-is.
         Also extracts the most recent timestamp as "_ts" (ms epoch).
         """
         result: dict[str, Any] = {}
@@ -84,11 +85,15 @@ class EdenicApiClient:
         for key, entries in raw.items():
             if isinstance(entries, list) and entries:
                 try:
-                    result[key] = float(entries[0]["value"])
+                    raw_value = entries[0]["value"]
+                    try:
+                        result[key] = float(raw_value)
+                    except (ValueError, TypeError):
+                        result[key] = raw_value
                     ts = entries[0].get("ts")
                     if ts is not None and (latest_ts is None or ts > latest_ts):
                         latest_ts = ts
-                except (ValueError, KeyError, IndexError):
+                except (KeyError, IndexError):
                     result[key] = None
         if latest_ts is not None:
             result["_ts"] = latest_ts
