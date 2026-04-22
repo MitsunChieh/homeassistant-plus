@@ -1,12 +1,14 @@
 ## Why
 
-The Edenic API returns the IntelliLink gateway as a device alongside IntelliDose controllers. Currently the integration filters it out entirely. The gateway has useful diagnostic telemetry (firmware version, firmware state, event counters) that should be visible in HA. It also needs to be distinguished from IntelliDose devices — model should be "IntelliLink", not "IntelliDose".
+The Edenic API returns IntelliLink gateways as devices alongside IntelliDose controllers. Currently the integration filters them out entirely. Gateways have useful diagnostic telemetry (firmware version, firmware state, event counters) that should be visible in HA. They also need to be distinguished from IntelliDose devices — model should be "IntelliLink", not "IntelliDose".
+
+As of 2026-04-22, the API returns 2 gateways (Bluelab-7B69, Bluelab-AABE) and 3 IntelliDose (IDose A, IDose B, IDose C). The integration must handle multiple gateways.
 
 ## What Changes
 
-- Remove the gateway filter — include IntelliLink gateway as a HA device
-- Register gateway with model "IntelliLink" (not "IntelliDose") and use its `additionalInfo.deviceIdentifier` ("Bluelab-7B69") as device name
-- Create diagnostic sensor entities for gateway: firmware version, firmware state, events produced, events sent
+- Remove the gateway filter — include IntelliLink gateways as HA devices
+- Register each gateway with model "IntelliLink" (not "IntelliDose") and use its `additionalInfo.deviceIdentifier` (e.g. "Bluelab-AABE") as device name
+- Create 6 diagnostic sensor entities per gateway: firmware version, firmware state, events produced, events sent, custom connector events produced, custom connector events sent
 - Keep IntelliDose handling unchanged (EC/pH/temp/targets)
 
 ## Non-Goals
@@ -19,7 +21,7 @@ The Edenic API returns the IntelliLink gateway as a device alongside IntelliDose
 
 ### Modified Capabilities
 
-- `bluelab-cloud-sensor`: Add IntelliLink gateway device with diagnostic entities, remove gateway filter
+- `bluelab-cloud-sensor`: Add IntelliLink gateway devices with diagnostic entities, remove gateway filter
 
 ## Impact
 
