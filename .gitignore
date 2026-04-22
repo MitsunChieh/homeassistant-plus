@@ -49,6 +49,9 @@ next-env.d.ts
 .spectra/
 openspec/.vector-search.db*
 
+# project notes (personal, not committed)
+notes/
+
 # python
 __pycache__/
 *.pyc
