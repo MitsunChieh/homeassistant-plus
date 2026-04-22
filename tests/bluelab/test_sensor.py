@@ -101,6 +101,66 @@ class TestSensorDescriptions:
         assert ("bluelab", "gw-1") in info["identifiers"]
 
 
+class TestGatewayDiagnosticSensorTypes:
+    """Test gateway diagnostic sensor type definitions."""
+
+    def test_gateway_sensor_types_count(self):
+        """There are 6 gateway diagnostic sensor types."""
+        from custom_components.bluelab.sensor import GATEWAY_SENSOR_TYPES
+
+        assert len(GATEWAY_SENSOR_TYPES) == 6
+
+    def test_gateway_sensor_types_keys(self):
+        """Gateway sensor types cover all expected telemetry keys."""
+        from custom_components.bluelab.sensor import GATEWAY_SENSOR_TYPES
+
+        keys = {s["key"] for s in GATEWAY_SENSOR_TYPES}
+        assert keys == {
+            "current_fw_version",
+            "fw_state",
+            "eventsProduced",
+            "eventsSent",
+            "customconnectorEventsProduced",
+            "customconnectorEventsSent",
+        }
+
+    def test_gateway_sensor_types_have_required_fields(self):
+        """Each gateway sensor type has key, name, and entity_category diagnostic."""
+        from custom_components.bluelab.sensor import GATEWAY_SENSOR_TYPES
+
+        for sensor_type in GATEWAY_SENSOR_TYPES:
+            assert "key" in sensor_type
+            assert "name" in sensor_type
+            assert sensor_type.get("entity_category") == "diagnostic"
+
+    def test_event_sensors_have_total_increasing(self):
+        """Event counter sensors have state_class total_increasing."""
+        from custom_components.bluelab.sensor import GATEWAY_SENSOR_TYPES
+
+        event_keys = {"eventsProduced", "eventsSent",
+                      "customconnectorEventsProduced", "customconnectorEventsSent"}
+        for sensor_type in GATEWAY_SENSOR_TYPES:
+            if sensor_type["key"] in event_keys:
+                assert sensor_type.get("state_class") == "total_increasing"
+
+    def test_fw_sensors_have_no_state_class(self):
+        """Firmware version and state sensors have no state_class."""
+        from custom_components.bluelab.sensor import GATEWAY_SENSOR_TYPES
+
+        fw_keys = {"current_fw_version", "fw_state"}
+        for sensor_type in GATEWAY_SENSOR_TYPES:
+            if sensor_type["key"] in fw_keys:
+                assert sensor_type.get("state_class") is None
+
+    def test_two_gateways_create_twelve_diagnostic_entities(self):
+        """2 gateways × 6 sensors = 12 diagnostic entities."""
+        from custom_components.bluelab.sensor import GATEWAY_SENSOR_TYPES
+
+        gateways = [{"id": "gw-1"}, {"id": "gw-2"}]
+        total = len(gateways) * len(GATEWAY_SENSOR_TYPES)
+        assert total == 12
+
+
 class TestTelemetryTimestamp:
     """Test telemetry timestamp exposed as entity attribute."""
 

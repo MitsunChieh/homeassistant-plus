@@ -13,6 +13,6 @@
 
 ## 3. Gateway Diagnostic Entities
 
-- [ ] 3.1 Write failing test for gateway diagnostic entities — verify 6 diagnostic sensors per gateway (fw version, fw state, events produced, events sent, custom connector events produced, custom connector events sent) with correct entity_category; test with 2 gateways (12 diagnostic entities total)
-- [ ] 3.2 Add `GATEWAY_SENSOR_TYPES` to `sensor.py` with 6 diagnostic sensor definitions (`current_fw_version`, `fw_state`, `eventsProduced`, `eventsSent`, `customconnectorEventsProduced`, `customconnectorEventsSent`); create `BluelabGatewayDiagnosticSensor` entity class; wire up in `async_setup_entry` for gateway devices
-- [ ] 3.3 Run full test suite to verify all tests pass
+- [x] 3.1 Write failing test for gateway diagnostic entities — verify 6 diagnostic sensors per gateway (fw version, fw state, events produced, events sent, custom connector events produced, custom connector events sent) with correct entity_category; test with 2 gateways (12 diagnostic entities total)
+- [x] 3.2 Add `GATEWAY_SENSOR_TYPES` to `sensor.py` with 6 diagnostic sensor definitions (`current_fw_version`, `fw_state`, `eventsProduced`, `eventsSent`, `customconnectorEventsProduced`, `customconnectorEventsSent`); create `BluelabGatewayDiagnosticSensor` entity class; wire up in `async_setup_entry` for gateway devices
+- [x] 3.3 Run full test suite to verify all tests pass

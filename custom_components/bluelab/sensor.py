@@ -44,6 +44,45 @@ TELEMETRY_SENSOR_TYPES = [
     },
 ]
 
+GATEWAY_SENSOR_TYPES = [
+    {
+        "key": "current_fw_version",
+        "name": "Firmware Version",
+        "entity_category": "diagnostic",
+        "state_class": None,
+    },
+    {
+        "key": "fw_state",
+        "name": "Firmware State",
+        "entity_category": "diagnostic",
+        "state_class": None,
+    },
+    {
+        "key": "eventsProduced",
+        "name": "Events Produced",
+        "entity_category": "diagnostic",
+        "state_class": SensorStateClass.TOTAL_INCREASING,
+    },
+    {
+        "key": "eventsSent",
+        "name": "Events Sent",
+        "entity_category": "diagnostic",
+        "state_class": SensorStateClass.TOTAL_INCREASING,
+    },
+    {
+        "key": "customconnectorEventsProduced",
+        "name": "Custom Connector Events Produced",
+        "entity_category": "diagnostic",
+        "state_class": SensorStateClass.TOTAL_INCREASING,
+    },
+    {
+        "key": "customconnectorEventsSent",
+        "name": "Custom Connector Events Sent",
+        "entity_category": "diagnostic",
+        "state_class": SensorStateClass.TOTAL_INCREASING,
+    },
+]
+
 ATTRIBUTE_SENSOR_TYPES = [
     {
         "key": "setting.ec_set_point",
@@ -92,13 +131,14 @@ async def async_setup_entry(
 ) -> None:
     """Set up Bluelab sensor entities from a config entry."""
     data = hass.data[DOMAIN][entry.entry_id]
-    devices: list[dict[str, Any]] = data["devices"]
+    gateways: list[dict[str, Any]] = data["gateways"]
+    intellidose: list[dict[str, Any]] = data["intellidose"]
     telemetry_coordinator: BluelabTelemetryCoordinator = data["telemetry_coordinator"]
     attribute_coordinator: BluelabAttributeCoordinator = data["attribute_coordinator"]
 
     entities: list[SensorEntity] = []
 
-    for device in devices:
+    for device in intellidose:
         device_id = device["id"]
         device_name = get_device_display_name(device)
 
@@ -116,6 +156,20 @@ async def async_setup_entry(
             entities.append(
                 BluelabAttributeSensor(
                     coordinator=attribute_coordinator,
+                    device_id=device_id,
+                    device_name=device_name,
+                    sensor_type=sensor_type,
+                )
+            )
+
+    for device in gateways:
+        device_id = device["id"]
+        device_name = get_device_display_name(device)
+
+        for sensor_type in GATEWAY_SENSOR_TYPES:
+            entities.append(
+                BluelabGatewayDiagnosticSensor(
+                    coordinator=telemetry_coordinator,
                     device_id=device_id,
                     device_name=device_name,
                     sensor_type=sensor_type,
@@ -207,3 +261,42 @@ class BluelabAttributeSensor(CoordinatorEntity, SensorEntity):
         if device_data is None:
             return None
         return device_data.get(self._sensor_key)
+
+
+class BluelabGatewayDiagnosticSensor(CoordinatorEntity, SensorEntity):
+    """Sensor entity for IntelliLink gateway diagnostic telemetry."""
+
+    def __init__(
+        self,
+        coordinator: BluelabTelemetryCoordinator,
+        device_id: str,
+        device_name: str,
+        sensor_type: dict[str, Any],
+    ) -> None:
+        super().__init__(coordinator)
+        self._device_id = device_id
+        self._sensor_key = sensor_type["key"]
+        self._attr_unique_id = make_unique_id(device_id, self._sensor_key)
+        self._attr_name = f"{device_name} {sensor_type['name']}"
+        self._attr_entity_category = sensor_type["entity_category"]
+        self._attr_state_class = sensor_type.get("state_class")
+        self._attr_device_info = make_device_info(device_id, device_name, model="IntelliLink")
+
+    @property
+    def native_value(self) -> str | float | None:
+        """Return the diagnostic value from coordinator data."""
+        if self.coordinator.data is None:
+            return None
+        device_data = self.coordinator.data.get(self._device_id)
+        if device_data is None:
+            return None
+        return device_data.get(self._sensor_key)
+
+    @property
+    def available(self) -> bool:
+        """Return True if device has data in the coordinator."""
+        if not super().available:
+            return False
+        if self.coordinator.data is None:
+            return False
+        return self._device_id in self.coordinator.data
