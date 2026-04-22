@@ -28,16 +28,16 @@ The integration SHALL provide a config flow that accepts an Edenic API token and
 ---
 ### Requirement: Telemetry polling with rate limit compliance
 
-The integration SHALL poll the Edenic Cloud API for telemetry data at a 70-second interval. For each IntelliDose device, it SHALL call `GET /api/v1/telemetry/{device_id}`. When multiple devices exist, requests SHALL be spaced at least 5 seconds apart to avoid triggering the API rate limit.
+The integration SHALL poll the Edenic Cloud API for telemetry data at a 70-second interval. For each device (both IntelliDose and gateway), it SHALL call `GET /api/v1/telemetry/{device_id}`. When multiple devices exist, requests SHALL be spaced at least 5 seconds apart to avoid triggering the API rate limit.
 
 #### Scenario: Single device telemetry fetch
 
-- **WHEN** the polling interval elapses and one IntelliDose device is configured
+- **WHEN** the polling interval elapses and one device is configured
 - **THEN** the integration SHALL fetch telemetry from `/api/v1/telemetry/{device_id}` and update sensor entity states
 
 #### Scenario: Multiple device telemetry fetch with spacing
 
-- **WHEN** the polling interval elapses and three IntelliDose devices are configured
+- **WHEN** the polling interval elapses and 5 devices are configured (2 gateways + 3 IntelliDose)
 - **THEN** the integration SHALL fetch telemetry for each device with at least 5 seconds between requests
 
 #### Scenario: API rate limit error
@@ -48,7 +48,7 @@ The integration SHALL poll the Edenic Cloud API for telemetry data at a 70-secon
 ---
 ### Requirement: Sensor entity creation per IntelliDose unit
 
-The integration SHALL create HA sensor entities for each IntelliDose device returned by the device list API. Devices where `gateway` is `true` SHALL be excluded — no entities SHALL be created for gateway devices. Each non-gateway device SHALL have sensor entities for:
+The integration SHALL create HA sensor entities for each IntelliDose device returned by the device list API. Each non-gateway device (`gateway: false`) SHALL have sensor entities for:
 
 - EC (unit: "mS/cm", state_class: measurement)
 - pH (unit: "pH", state_class: measurement)
@@ -58,15 +58,12 @@ Entity unique_id SHALL be derived from the Edenic device ID.
 
 Each telemetry sensor entity SHALL expose an `extra_state_attributes` field named `last_reading` containing the telemetry timestamp as an ISO 8601 datetime string (UTC). If the timestamp is not available, `last_reading` SHALL be absent from attributes.
 
-#### Scenario: Gateway device excluded
+Each gateway device (`gateway: true`) SHALL have 6 diagnostic sensor entities (see "Gateway diagnostic entities" requirement).
 
-- **WHEN** the device list API returns a device with `gateway: true`
-- **THEN** the integration SHALL NOT create any entities for that device and it SHALL NOT appear in the HA device registry
+#### Scenario: Multiple IntelliDose devices and multiple gateways discovered
 
-#### Scenario: Two IntelliDose devices discovered
-
-- **WHEN** the device list API returns two IntelliDose devices and one gateway
-- **THEN** the integration SHALL create 10 sensor entities (2 devices × 5 sensors each) and exclude the gateway
+- **WHEN** the device list API returns 3 IntelliDose devices and 2 gateway devices
+- **THEN** the integration SHALL create 15 telemetry/target sensor entities for the 3 IntelliDose devices (5 per device) and 12 diagnostic sensor entities for the 2 gateways (6 per gateway), totalling 27 entities
 
 #### Scenario: Telemetry updates entity state
 
@@ -106,14 +103,46 @@ The integration SHALL fetch device attributes from `GET /api/v1/device-attribute
 ---
 ### Requirement: Device registry organization
 
-The integration SHALL register each IntelliDose as a HA device using the Edenic device ID as the identifier. The device entry SHALL include the device label from the Edenic API as the device name (falling back to the raw `name` field if `label` is null or empty), manufacturer "Bluelab", and model "IntelliDose".
+The integration SHALL register each device from the Edenic API as a HA device using the Edenic device ID as the identifier. For IntelliDose devices (`gateway: false`), the device entry SHALL use the `label` field as device name (falling back to `name` if `label` is null or empty), manufacturer "Bluelab", and model "IntelliDose". For gateway devices (`gateway: true`), the device entry SHALL use `additionalInfo.deviceIdentifier` as device name (falling back to `name`), manufacturer "Bluelab", and model "IntelliLink".
 
-#### Scenario: Device appears in HA device registry with label
+#### Scenario: IntelliDose appears with label
 
-- **WHEN** the integration discovers an IntelliDose device with `label: "IDose"`
-- **THEN** the HA device registry SHALL contain an entry with name "IDose", manufacturer "Bluelab", and model "IntelliDose"
+- **WHEN** the integration discovers an IntelliDose device with `label: "IDose A"`
+- **THEN** the HA device registry SHALL contain an entry with name "IDose A", manufacturer "Bluelab", and model "IntelliDose"
 
-#### Scenario: Device with no label falls back to name
+#### Scenario: IntelliDose with no label falls back to name
 
 - **WHEN** the integration discovers an IntelliDose device with `label: null`
 - **THEN** the HA device registry SHALL use the `name` field as the device name
+
+#### Scenario: Gateway appears with deviceIdentifier
+
+- **WHEN** the integration discovers a gateway device with `additionalInfo.deviceIdentifier: "Bluelab-AABE"`
+- **THEN** the HA device registry SHALL contain an entry with name "Bluelab-AABE", manufacturer "Bluelab", and model "IntelliLink"
+
+---
+### Requirement: Gateway diagnostic entities
+
+The integration SHALL create diagnostic sensor entities for each gateway device (`gateway: true`). The entities SHALL include:
+
+- Firmware Version (value from `current_fw_version` telemetry key, entity_category: diagnostic)
+- Firmware State (value from `fw_state` telemetry key, entity_category: diagnostic)
+- Events Produced (value from `eventsProduced` telemetry key, state_class: total_increasing, entity_category: diagnostic)
+- Events Sent (value from `eventsSent` telemetry key, state_class: total_increasing, entity_category: diagnostic)
+- Custom Connector Events Produced (value from `customconnectorEventsProduced` telemetry key, state_class: total_increasing, entity_category: diagnostic)
+- Custom Connector Events Sent (value from `customconnectorEventsSent` telemetry key, state_class: total_increasing, entity_category: diagnostic)
+
+#### Scenario: Gateway with diagnostic telemetry
+
+- **WHEN** the gateway telemetry returns firmware version "0.0.1", firmware state "UPDATED", and event counters
+- **THEN** the integration SHALL create 6 diagnostic sensor entities showing these values
+
+#### Scenario: Gateway telemetry unavailable
+
+- **WHEN** the gateway telemetry returns empty or errors
+- **THEN** the gateway diagnostic entities SHALL be marked as unavailable
+
+#### Scenario: Multiple gateways
+
+- **WHEN** the device list API returns 2 gateway devices
+- **THEN** the integration SHALL create 6 diagnostic sensor entities for each gateway (12 total), each with unique_id derived from the gateway's Edenic device ID
