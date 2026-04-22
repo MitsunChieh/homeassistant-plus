@@ -10,6 +10,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -48,37 +49,37 @@ GATEWAY_SENSOR_TYPES = [
     {
         "key": "current_fw_version",
         "name": "Firmware Version",
-        "entity_category": "diagnostic",
+        "entity_category": EntityCategory.DIAGNOSTIC,
         "state_class": None,
     },
     {
         "key": "fw_state",
         "name": "Firmware State",
-        "entity_category": "diagnostic",
+        "entity_category": EntityCategory.DIAGNOSTIC,
         "state_class": None,
     },
     {
         "key": "eventsProduced",
         "name": "Events Produced",
-        "entity_category": "diagnostic",
+        "entity_category": EntityCategory.DIAGNOSTIC,
         "state_class": SensorStateClass.TOTAL_INCREASING,
     },
     {
         "key": "eventsSent",
         "name": "Events Sent",
-        "entity_category": "diagnostic",
+        "entity_category": EntityCategory.DIAGNOSTIC,
         "state_class": SensorStateClass.TOTAL_INCREASING,
     },
     {
         "key": "customconnectorEventsProduced",
         "name": "Custom Connector Events Produced",
-        "entity_category": "diagnostic",
+        "entity_category": EntityCategory.DIAGNOSTIC,
         "state_class": SensorStateClass.TOTAL_INCREASING,
     },
     {
         "key": "customconnectorEventsSent",
         "name": "Custom Connector Events Sent",
-        "entity_category": "diagnostic",
+        "entity_category": EntityCategory.DIAGNOSTIC,
         "state_class": SensorStateClass.TOTAL_INCREASING,
     },
 ]
